@@ -1,0 +1,37 @@
+def calculate_parity_bit(data):
+    parity = 0
+    for bit in data:
+        parity ^= bit  # XOR operation to calculate parity
+
+    return parity
+
+def add_parity_bit(data):
+    parity_bit = calculate_parity_bit(data)
+    data_with_parity = data + [parity_bit]  # Append parity bit to the data
+    return data_with_parity
+
+def check_parity(data_with_parity):
+    received_parity = data_with_parity[-1]  # Extract the received parity bit
+    data_to_check = data_with_parity[:-1]   # Data without the received parity bit
+    calculated_parity = calculate_parity_bit(data_to_check)
+
+    if received_parity == calculated_parity:
+        return True  # Parity check successful
+    else:
+        return False  # Parity check failed
+
+# Example usage:
+input_data = [1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1]
+
+# Ensure input_data length is at least 25
+if len(input_data) < 25:
+    print("Input data length should be at least 25 bits.")
+else:
+    data_with_parity = add_parity_bit(input_data)
+    print("Data with parity bit:", data_with_parity)
+
+    parity_check = check_parity(data_with_parity)
+    if parity_check:
+        print("Parity check successful: No errors detected.")
+    else:
+        print("Parity check failed: Errors detected in the received data.")

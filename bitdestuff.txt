@@ -1,0 +1,40 @@
+def perform_bit_destuffing(size, bit_array):
+    destuffed_array = [0 for _ in range(30)]
+
+    k = 0
+    i = 0
+    j = 0
+    count = 1
+
+    while i < size:
+        if bit_array[i] == 1:
+            destuffed_array[j] = bit_array[i]
+
+            for k in range(i + 1, size):
+                if k < size and bit_array[k] == 1 and count < 5:
+                    j += 1
+                    destuffed_array[j] = bit_array[k]
+                    count += 1
+
+                    if count == 5:
+                        k += 1
+
+                    i = k
+                else:
+                    break
+        else:
+            destuffed_array[j] = bit_array[i]
+
+        i += 1
+        j += 1
+
+    # Print the destuffed array
+    for i in range(0, j):
+        print(destuffed_array[i], end="")
+
+# Driver Code
+if _name_ == '_main_':
+    data_size = 7
+    data_bits = [1, 1, 1, 1, 1, 0, 1]
+
+    perform_bit_destuffing(data_size, data_bits)

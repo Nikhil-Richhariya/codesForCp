@@ -1,0 +1,43 @@
+def perform_bit_stuffing(size, bit_array):
+    stuffed_array = [0 for _ in range(30)]
+
+    k = 0
+    i = 0
+    j = 0
+
+    while i < size:
+        if bit_array[i] == 1:
+            count = 1
+            stuffed_array[j] = bit_array[i]
+
+            k = i + 1
+            while True:
+                if not (k < size and bit_array[k] == 1 and count < 5):
+                    break
+
+                j += 1
+                stuffed_array[j] = bit_array[k]
+                count += 1
+
+                if count == 5:
+                    j += 1
+                    stuffed_array[j] = 0
+
+                i = k
+                k += 1
+        else:
+            stuffed_array[j] = bit_array[i]
+
+        i += 1
+        j += 1
+
+    # Print the stuffed array
+    for i in range(0, j):
+        print(stuffed_array[i], end="")
+
+# Driver Code
+if _name_ == "_main_":
+    data_size = 6
+    data_bits = [1, 1, 1, 1, 1, 1]
+
+    perform_bit_stuffing(data_size, data_bits)

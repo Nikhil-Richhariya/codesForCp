@@ -1,0 +1,42 @@
+# Returns XOR of 'a' and 'b' (both of the same length)
+def xor(a, b):
+    result = []
+    for i in range(1, len(b)):
+        if a[i] == b[i]:
+            result.append('0')
+        else:
+            result.append('1')
+    return ''.join(result)
+
+# Performs Modulo-2 division
+def mod2div(dividend, divisor):
+    divisor_length = len(divisor)
+    temp_dividend = dividend[0: divisor_length]
+    
+    while divisor_length < len(dividend):
+        if temp_dividend[0] == '1':
+            temp_dividend = xor(divisor, temp_dividend) + dividend[divisor_length]
+        else:
+            temp_dividend = xor('0'*divisor_length, temp_dividend) + dividend[divisor_length]
+        divisor_length += 1
+        
+    if temp_dividend[0] == '1':
+        temp_dividend = xor(divisor, temp_dividend)
+    else:
+        temp_dividend = xor('0'*divisor_length, temp_dividend)
+    remainder = temp_dividend
+    return remainder
+
+# Function used at the sender side to encode data by appending remainder of modular division at the end of data.
+def encode_data(data, polynomial):
+    poly_length = len(polynomial)
+    appended_data = data + '0'*(poly_length-1)
+    crc_remainder = mod2div(appended_data, polynomial)
+    encoded_data = data + crc_remainder
+    print("CRC Remainder: ", crc_remainder)
+    print("Encoded Data (Data + CRC Remainder): ", encoded_data)
+
+# Driver code
+input_data = "100100"
+generator_polynomial = "1101"
+encode_data(input_data, generator_polynomial)
