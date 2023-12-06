@@ -1,37 +1,62 @@
-def calculate_parity_bit(data):
-    parity = 0
-    for bit in data:
-        parity ^= bit  # XOR operation to calculate parity
+import time
 
-    return parity
+WINDOW_SIZE = 4
+MAX_SEQ_NUM = 7
 
-def add_parity_bit(data):
-    parity_bit = calculate_parity_bit(data)
-    data_with_parity = data + [parity_bit]  # Append parity bit to the data
-    return data_with_parity
+NETWORK_DELAY = 0.1  # Simulated network delay in seconds
+PACKET_LOSS_PROBABILITY = 0.1  # Probability of packet loss
 
-def check_parity(data_with_parity):
-    received_parity = data_with_parity[-1]  # Extract the received parity bit
-    data_to_check = data_with_parity[:-1]   # Data without the received parity bit
-    calculated_parity = calculate_parity_bit(data_to_check)
+# Sender
+class Sender:
+    def __init__(self):
+        self.base = 0
+        self.next_seq_num = 0
 
-    if received_parity == calculated_parity:
-        return True  # Parity check successful
-    else:
-        return False  # Parity check failed
+    def send(self, receiver, data):
+        packets_sent = []
+        while self.next_seq_num < min(self.base + WINDOW_SIZE, len(data)):
+            packet = (self.next_seq_num, data[self.next_seq_num])
+            packets_sent.append(packet)
+            self.next_seq_num += 1
+        print(f"Sender: Sending packets with sequence numbers {', '.join(str(seq_num) for seq_num, _ in packets_sent)}")
+        receiver.receive(packets_sent)
 
-# Example usage:
-input_data = [1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1]
+    def receive_ack(self, ack_num):
+        print(f"Sender: Received ACK for sequence number {ack_num}")
+        if ack_num >= self.base:
+            self.base = ack_num + 1
 
-# Ensure input_data length is at least 25
-if len(input_data) < 25:
-    print("Input data length should be at least 25 bits.")
-else:
-    data_with_parity = add_parity_bit(input_data)
-    print("Data with parity bit:", data_with_parity)
+# Receiver
+class Receiver:
+    def __init__(self):
+        self.expected_seq_num = 0
 
-    parity_check = check_parity(data_with_parity)
-    if parity_check:
-        print("Parity check successful: No errors detected.")
-    else:
-        print("Parity check failed: Errors detected in the received data.")
+    def receive(self, packets):
+        for seq_num, data in packets:
+            if seq_num == self.expected_seq_num:
+                print(f"Receiver: Received packet with sequence number {seq_num}: {data}")
+                self.expected_seq_num += 1
+        self.send_ack(self.expected_seq_num - 1)
+
+    def send_ack(self, ack_num):
+        print(f"Receiver: Sending ACK for sequence number {ack_num}")
+
+# Simulate network with possible packet loss and delay
+def simulate_network(sender, receiver, data):
+    while sender.base < len(data):
+        sender.send(receiver, data)
+        ack_num = sender.base
+        while ack_num < sender.next_seq_num:
+            sender.receive_ack(ack_num)
+            ack_num += 1
+        time.sleep(NETWORK_DELAY)
+        if sender.next_seq_num == 4:
+            sender.base = sender.next_seq_num
+
+# Main simulation
+if __name__ == "__main__":
+    sender = Sender()
+    receiver = Receiver()
+    data = ["Packet0", "Packet1", "Packet2", "Packet3", "Packet4", "Packet5", "Packet6", "Packet7"]
+
+    simulate_network(sender, receiver, data)
