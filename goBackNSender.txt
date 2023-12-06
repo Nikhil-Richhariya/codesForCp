@@ -1,48 +1,33 @@
-import threading
-import time
+import random
+ws=int(input("Enter window size: "))
+tp=int(input("enter total packets to send: "))
+n=random.randint(1,tp)
+if(n==0):
+    print("No packet loss")
+else:
+    print("Every {}th packet is lost".format(n))
+if(n==1):
+    print("No packet sent as every packet is lost")
+else:
+    ts=1
+    i=1
+    while(i<=tp):
+        if(ts%n==0):
+            print("------------------------")
+            for j in range(ws):
+              if(i+j>tp):
+                continue
+              else:
 
-class GoBackN:
-    def __init__(self, window_size, total_frames):
-        self.window_size = window_size
-        self.total_frames = total_frames
-        self.frames = list(range(total_frames))
-        self.next_frame_to_send = 0
-        self.frame_expected = 0
-        self.window = [None] * window_size
-
-    def send_frames(self):
-        while self.next_frame_to_send < self.total_frames:
-            if self.next_frame_to_send < self.frame_expected + self.window_size:
-                self.send_frame(self.next_frame_to_send)
-                self.next_frame_to_send += 1
-            else:
-                time.sleep(1)
-
-    def send_frame(self, frame_number):
-        print(f"Sending Frame {frame_number}")
-        self.window[frame_number % self.window_size] = frame_number
-
-        # Simulate frame loss every 5th frame
-        if frame_number % 5 != 0:
-            self.receive_ack(frame_number)
+                if (ts)%n==0:
+                  print("lost",i+j,"❌")
+                else:
+                  print("sent",i+j,"🗑discarded")
+                ts+=1
+            print("------------------------")
         else:
-            print(f"Frame {frame_number} lost in transmission")
-
-    def receive_ack(self, ack_number):
-        print(f"Received ACK {ack_number}")
-        while self.frame_expected <= ack_number:
-            self.window[self.frame_expected % self.window_size] = None
-            self.frame_expected += 1
-
-    def start_simulation(self):
-        send_thread = threading.Thread(target=self.send_frames)
-        send_thread.start()
-        send_thread.join()
-
-
-if __name__ == "__main__":
-    window_size = 4
-    total_frames = 20
-
-    gbn = GoBackN(window_size, total_frames)
-    gbn.start_simulation()
+            print("sent",i,"✅")
+            i+=1
+            ts+=1
+    ts-=1
+    print("total packets sent:",ts)
